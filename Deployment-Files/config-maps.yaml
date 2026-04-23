@@ -1,0 +1,34 @@
+# ConfigMap for RabbitMQ plugins
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-enabled-plugins
+data:
+  rabbitmq_enabled_plugins: |
+    [rabbitmq_management,rabbitmq_prometheus,rabbitmq_amqp1_0].
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # Database configuration
+  ORDER_DB_URI: "mongodb://mongodb-service:27017"
+  ORDER_DB_NAME: "orderdb"
+  ORDER_DB_COLLECTION_NAME: "orders"
+  
+  # RabbitMQ configuration
+  ORDER_QUEUE_HOSTNAME: "rabbitmq-service"
+  ORDER_QUEUE_PORT: "5672"
+  ORDER_QUEUE_NAME: "orders"
+  ORDER_QUEUE_URI: "amqp://rabbitmq-service:5672"
+  
+  # Service URLs
+  ORDER_SERVICE_URL: "http://order-service:3000/"
+  PRODUCT_SERVICE_URL: "http://product-service:3002/"
+  MAKELINE_SERVICE_URL: "http://makeline-service:3001/"
+  
+  # Application settings
+  FASTIFY_ADDRESS: "0.0.0.0"
+---
