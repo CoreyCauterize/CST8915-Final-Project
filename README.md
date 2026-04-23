@@ -1,5 +1,7 @@
 # Best Buy Cloud-Native Application
 
+[Video](https://youtu.be/DRTJQWCyFYo)
+
 A comprehensive microservices-based e-commerce platform built for Best Buy, demonstrating modern cloud-native development practices. This application follows the Algonquin Pet Store architecture pattern and consists of 5 microservices with MongoDB database, designed for scalability and maintainability in the cloud.
 
 ## Architecture Diagram
@@ -51,12 +53,11 @@ graph TB
     DB -.-> KUBE
     
     %% Styling
-    classDef frontend fill:#e3f2fd
-    classDef gateway fill:#fff3e0  
-    classDef backend fill:#f3e5f5
-    classDef infra fill:#e8f5e8
-    classDef k8s fill:#fce4ec
-    classDef users fill:#f1f8e9
+    classDef frontend fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#ffffff
+    classDef backend fill:#7c2d12,stroke:#f97316,stroke-width:2px,color:#ffffff
+    classDef infra fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#ffffff
+    classDef k8s fill:#581c87,stroke:#a855f7,stroke-width:2px,color:#ffffff
+    classDef users fill:#374151,stroke:#9ca3af,stroke-width:2px,color:#ffffff
     
     class SF,SA frontend
     class OS,PS,MS backend
@@ -102,7 +103,7 @@ This Best Buy cloud-native application demonstrates modern e-commerce capabiliti
 
 #### 1. **Clone and Prepare Repository**
 ```bash
-git clone https://github.com/your-username/CST8915-Final-Project.git
+git clone https://github.com/coreyms94/CST8915-Final-Project.git
 cd CST8915-Final-Project
 ```
 
@@ -113,11 +114,11 @@ cd CST8915-Final-Project
 ./build-and-push.bat
 
 # Or build individually
-cd order-service-final && docker build -t your-dockerhub/order-service:latest .
-cd ../product-service-final && docker build -t your-dockerhub/product-service:latest .
-cd ../makeline-service-final && docker build -t your-dockerhub/makeline-service:latest .
-cd ../store-front-final && docker build -t your-dockerhub/store-front:latest .
-cd ../store-admin-final && docker build -t your-dockerhub/store-admin:latest .
+cd order-service-final && docker build -t coreyms94/order-service:latest .
+cd ../product-service-final && docker build -t coreyms94/product-service:latest .
+cd ../makeline-service-final && docker build -t coreyms94/makeline-service:latest .
+cd ../store-front-final && docker build -t coreyms94/store-front:latest .
+cd ../store-admin-final && docker build -t coreyms94/store-admin:latest .
 ```
 
 #### 3. **Deploy to Kubernetes**
@@ -125,24 +126,16 @@ cd ../store-admin-final && docker build -t your-dockerhub/store-admin:latest .
 # Navigate to deployment files
 cd Deployment-Files/
 
-# Deploy infrastructure (MongoDB StatefulSet, RabbitMQ)
-kubectl apply -f infrastructure/
+# Deploy secrets and configuration first
+kubectl apply -f secrets.yaml
+kubectl apply -f config-maps.yaml
 
-# Deploy configuration (Secrets, ConfigMaps)
-kubectl apply -f configuration/
+# Deploy all services using the all-in-one file
+kubectl apply -f aps-all-in-one.yaml
 
 # Wait for infrastructure to be ready
 kubectl wait --for=condition=ready pod -l app=mongodb --timeout=300s
 kubectl wait --for=condition=ready pod -l app=rabbitmq --timeout=300s
-
-# Deploy backend services
-kubectl apply -f services/
-
-# Deploy frontend applications
-kubectl apply -f frontends/
-
-# Setup ingress routing
-kubectl apply -f configuration/ingress.yaml
 ```
 
 #### 4. **Verify Deployment**
@@ -150,27 +143,27 @@ kubectl apply -f configuration/ingress.yaml
 # Check all pods are running
 kubectl get pods
 
-# Check services
+# Check services and external IPs
 kubectl get services
 
 # Check StatefulSet status
 kubectl get statefulsets
-
-# Check ingress
-kubectl get ingress
 ```
 
 #### 5. **Access Application**
 ```bash
-# If using ingress with domain
-echo "127.0.0.1 bestbuy-demo.local" >> /etc/hosts
-# Then access: http://bestbuy-demo.local
+# Get external IPs from LoadBalancer services
+kubectl get services store-front store-admin
 
-# Or use port forwarding
-kubectl port-forward service/store-front-service 8080:8080 &
-kubectl port-forward service/store-admin-service 8081:8081 &
+# Access using external IPs (replace with actual IPs from above command):
+# Customer Store: http://<STORE-FRONT-EXTERNAL-IP>
+# Admin Dashboard: http://<STORE-ADMIN-EXTERNAL-IP>
 
-# Access:
+# Alternative: Use port forwarding for local testing
+kubectl port-forward service/store-front 8080:80 &
+kubectl port-forward service/store-admin 8081:80 &
+
+# Access via port forwarding:
 # Customer Store: http://localhost:8080
 # Admin Dashboard: http://localhost:8081
 ```
@@ -226,24 +219,22 @@ Located in `.github/workflows/ci_cd.yaml`, the pipeline triggers on:
 ### Repository Links
 | Component | Repository URL |
 |-----------|----------------|
-| **Main Project** | [https://github.com/your-username/CST8915-Final-Project](https://github.com/your-username/CST8915-Final-Project) |
-| Order Service | [./order-service-final/](./order-service-final/) |
-| Product Service | [./product-service-final/](./product-service-final/) |
-| Makeline Service | [./makeline-service-final/](./makeline-service-final/) |
-| Store Front | [./store-front-final/](./store-front-final/) |
-| Store Admin | [./store-admin-final/](./store-admin-final/) |
-| Deployment Files | [./Deployment-Files/](./Deployment-Files/) |
+| **Main Project** | [https://github.com/coreyms94/CST8915-Final-Project](https://github.com/coreyms94/CST8915-Final-Project) |
+| Order Service | [./order-service-final/](https://github.com/CoreyCauterize/order-service-final) |
+| Product Service | [./product-service-final/](https://github.com/CoreyCauterize/product-service-final) |
+| Makeline Service | [./makeline-service-final/](https://github.com/CoreyCauterize/makeline-service-final) |
+| Store Front | [./store-front-final/](https://github.com/CoreyCauterize/store-front-final) |
+| Store Admin | [./store-admin-final/](https://github.com/CoreyCauterize/store-admin-final) |
+| Deployment Files | [./Deployment-Files/](https://github.com/CoreyCauterize/CST8915-Final-Project/tree/main/Deployment-Files) |
 
 ### Docker Hub Image Links
 | Service | Docker Hub Repository |
 |---------|----------------------|
-| **Order Service** | [`your-dockerhub/order-service:latest`](https://hub.docker.com/r/your-dockerhub/order-service) |
-| **Product Service** | [`your-dockerhub/product-service:latest`](https://hub.docker.com/r/your-dockerhub/product-service) |
-| **Makeline Service** | [`your-dockerhub/makeline-service:latest`](https://hub.docker.com/r/your-dockerhub/makeline-service) |
-| **Store Front** | [`your-dockerhub/store-front:latest`](https://hub.docker.com/r/your-dockerhub/store-front) |
-| **Store Admin** | [`your-dockerhub/store-admin:latest`](https://hub.docker.com/r/your-dockerhub/store-admin) |
-
-*Note: Replace `your-dockerhub` with your actual Docker Hub username*
+| **Order Service** | [`coreyms94/order-service:latest`](https://hub.docker.com/r/coreyms94/order-service) |
+| **Product Service** | [`coreyms94/product-service:latest`](https://hub.docker.com/r/coreyms94/product-service) |
+| **Makeline Service** | [`coreyms94/makeline-service:latest`](https://hub.docker.com/r/coreyms94/makeline-service) |
+| **Store Front** | [`coreyms94/store-front:latest`](https://hub.docker.com/r/coreyms94/store-front) |
+| **Store Admin** | [`coreyms94/store-admin:latest`](https://hub.docker.com/r/coreyms94/store-admin) |
 
 ## API Endpoints
 
@@ -283,10 +274,10 @@ Located in `.github/workflows/ci_cd.yaml`, the pipeline triggers on:
 CST8915-Final-Project/
 ├── README.md                          # This documentation
 ├── Deployment-Files/                  # Kubernetes manifests
-│   ├── infrastructure/               # Database & messaging
-│   ├── services/                     # Backend microservices
-│   ├── frontends/                    # Web applications  
-│   └── configuration/                # Secrets, ConfigMaps, Ingress
+│   ├── aps-all-in-one.yaml          # Complete application deployment
+│   ├── secrets.yaml                  # Kubernetes secrets
+│   ├── config-maps.yaml             # Configuration data
+│   └── DEPLOYMENT-GUIDE.md          # AKS deployment instructions
 ├── order-service-final/              # Node.js order API
 ├── product-service-final/            # Rust product API  
 ├── makeline-service-final/           # Go background worker
