@@ -30,14 +30,11 @@ graph TB
     CUST[Customers] --> SF
     EMP[Employees] --> SA
     
-    %% Frontend to Gateway
-    SF --> IG
-    SA --> IG
-    
-    %% Gateway to Services
-    IG --> OS
-    IG --> PS
-    IG --> MS
+    %% Frontend to Backend Services
+    SF --> OS
+    SF --> PS
+    SA --> PS
+    SA --> MS
     
     %% Service Communication
     OS -->|AMQP Publish| RMQ
@@ -62,7 +59,6 @@ graph TB
     classDef users fill:#f1f8e9
     
     class SF,SA frontend
-    class IG gateway
     class OS,PS,MS backend
     class RMQ,DB infra
     class KUBE k8s
@@ -84,8 +80,8 @@ This Best Buy cloud-native application demonstrates modern e-commerce capabiliti
 
 | Service | Technology Stack | Port | Business Purpose | Technical Role |
 |---------|------------------|------|------------------|----------------|
-| **Store Front** | Vue.js 3 + Nginx | 8080 | Customer product browsing and ordering | Customer-facing web interface |
-| **Store Admin** | Vue.js 3 + Nginx | 8081 | Employee order and product management | Internal administrative dashboard |
+| **Store Front** | Vue.js 3 | 8080 | Customer product browsing and ordering | Customer-facing web interface |
+| **Store Admin** | Vue.js 3 | 8081 | Employee order and product management | Internal administrative dashboard |
 | **Order Service** | Node.js + Fastify | 3000 | Order entry and validation | API gateway for order processing |
 | **Product Service** | Rust + Actix-web | 3002 | Product catalog management | Product CRUD operations with WASM rules |
 | **Makeline Service** | Go + Gin | 3001 | Order fulfillment processing | Background worker for order status updates |
@@ -93,7 +89,6 @@ This Best Buy cloud-native application demonstrates modern e-commerce capabiliti
 ### Infrastructure Components
 - **MongoDB StatefulSet**: Persistent order and customer data storage
 - **RabbitMQ**: Asynchronous message processing between services
-- **NGINX Ingress**: Load balancing and traffic routing
 - **Kubernetes (AKS)**: Container orchestration and service management
 
 ## Deployment Instructions
@@ -102,7 +97,6 @@ This Best Buy cloud-native application demonstrates modern e-commerce capabiliti
 - Azure Kubernetes Service (AKS) cluster or local Kubernetes
 - kubectl configured for your cluster
 - Docker Hub account for container images
-- NGINX Ingress Controller installed in cluster
 
 ### Step-by-Step Deployment
 
@@ -272,7 +266,6 @@ Located in `.github/workflows/ci_cd.yaml`, the pipeline triggers on:
 ### Frontend Technologies
 - **Vue.js 3**: Modern reactive framework for responsive user interfaces
 - **Vue Router**: Client-side routing for SPA functionality
-- **Nginx**: High-performance web server for static file serving
 
 ### Backend Technologies
 - **Node.js (Fastify)**: High-performance REST API with plugin ecosystem
